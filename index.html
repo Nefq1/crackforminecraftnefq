@@ -40,31 +40,6 @@
     pointer-events: none;
     z-index: 9999;
   }
-  html.has-pick, html.has-pick *{ cursor: none !important; }
-  #pickCursor{
-    position: fixed; left: 0; top: 0;
-    width: 32px; height: 32px;
-    pointer-events: none; z-index: 92; opacity: 0;
-    transition: opacity .2s ease;
-    will-change: transform;
-  }
-  #pickCursor .pick-axe{
-    width: 100%; height: 100%;
-    transform-origin: 72% 72%;
-  }
-  .pick-swing{ animation: pickSwing .28s ease; }
-  @keyframes pickSwing{
-    0%{ transform: rotate(0deg); }
-    35%{ transform: rotate(-46deg); }
-    100%{ transform: rotate(0deg); }
-  }
-  .block-spark{
-    position: fixed; pointer-events: none; z-index: 91;
-    border-radius: 1px; transform: translate(-50%, -50%);
-  }
-  @media (prefers-reduced-motion: reduce){
-    html.has-pick, html.has-pick *{ cursor: auto !important; }
-  }
   .stars{
     position: fixed; inset: 0;
     overflow: hidden;
@@ -1916,6 +1891,32 @@
   @media (max-width: 768px), (hover: none){
     .minigame--left{ left: 8px; }
   }
+  .snake-pad{
+    display: none;
+    grid-template-columns: repeat(3, 34px);
+    grid-template-rows: repeat(3, 34px);
+    gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  @media (hover: none), (pointer: coarse){
+    .snake-pad{ display: grid; }
+  }
+  .sn-dir{
+    border: 1px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+    font-size: 18px; line-height: 1;
+    border-radius: 9px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  .sn-dir:hover{ background: color-mix(in srgb, var(--accent) 28%, transparent); }
+  .sn-dir:active{ background: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .sn-dir.up{ grid-area: 1 / 2; }
+  .sn-dir.left{ grid-area: 2 / 1; }
+  .sn-dir.right{ grid-area: 2 / 3; }
+  .sn-dir.down{ grid-area: 3 / 2; }
   /* ---- Пасхалка: крипер + тост ---- */
   .secret-creeper{
     position: fixed;
@@ -2374,66 +2375,88 @@
 
   const canHover = window.matchMedia('(hover: hover)').matches;
 
-  // Pickaxe cursor (replaces the trail)
+  // Cursor trail
   const trailCanvas = document.getElementById('cursorTrail');
-  if(trailCanvas) trailCanvas.style.display = 'none';
-  const reducePick = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(canHover && !reducePick){
-    const pick = document.createElement('div');
-    pick.id = 'pickCursor';
-    pick.setAttribute('aria-hidden', 'true');
-    pick.innerHTML = '<div class="pick-axe"><svg viewBox="0 0 32 32" width="32" height="32" style="overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))">'
-      + '<g transform="rotate(35 16 16)">'
-      + '<rect x="14.3" y="8" width="3.4" height="22" rx="1.6" fill="#9b6a33"/>'
-      + '<path d="M2.5 13 Q16 4.5 29.5 13 Q25 16.5 22.5 13 Q16 8.5 9.5 13 Q7 16.5 2.5 13 Z" fill="var(--accent)"/>'
-      + '<path d="M2.5 13 Q16 4.5 29.5 13 Q25 16.5 22.5 13 Q16 8.5 9.5 13 Q7 16.5 2.5 13 Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.6"/>'
-      + '</g></svg></div>';
-    document.body.appendChild(pick);
-    document.documentElement.classList.add('has-pick');
-    let visible = false;
-    window.addEventListener('pointermove', (e)=>{
-      if(!visible){ pick.style.opacity = '1'; visible = true; }
-      pick.style.transform = 'translate3d(' + (e.clientX - 4) + 'px,' + (e.clientY - 4) + 'px,0)';
-    }, {passive: true});
-    window.addEventListener('pointerdown', (e)=>{
-      swingPick(pick);
-      breakBlocks(e.clientX, e.clientY);
-    }, {passive: true});
-    window.addEventListener('blur', ()=>{ pick.style.opacity = '0'; visible = false; });
-    document.addEventListener('pointerleave', ()=>{ pick.style.opacity = '0'; visible = false; });
-  }
-
-  function swingPick(el){
-    const axe = el.querySelector('.pick-axe');
-    if(!axe) return;
-    axe.classList.remove('pick-swing');
-    void axe.offsetWidth;
-    axe.classList.add('pick-swing');
-  }
-
-  function breakBlocks(x, y){
-    const pal = ['#7cb342','#8d6e63','#9e9e9e','#5d4037','#a1887f','#6d4c41','#bdbdbd'];
-    const n = 7 + Math.floor(Math.random() * 4);
-    for(let i = 0; i < n; i++){
-      const b = document.createElement('div');
-      b.className = 'block-spark';
-      const sz = 5 + Math.random() * 6;
-      b.style.width = sz + 'px';
-      b.style.height = sz + 'px';
-      b.style.left = x + 'px';
-      b.style.top = y + 'px';
-      b.style.background = pal[Math.floor(Math.random() * pal.length)];
-      document.body.appendChild(b);
-      const ang = Math.random() * Math.PI * 2;
-      const dist = 14 + Math.random() * 26;
-      const dx = Math.cos(ang) * dist;
-      const dy = Math.sin(ang) * dist - 12;
-      const rot = (Math.random() * 2 - 1) * 200;
-      b.animate([
-        { transform: 'translate(-50%,-50%) translate(0,0) rotate(0deg)', opacity: 1 },
-        { transform: 'translate(-50%,-50%) translate(' + dx + 'px,' + (dy + 36) + 'px) rotate(' + rot + 'deg)', opacity: 0 }
-      ], { duration: 460 + Math.random() * 240, easing: 'cubic-bezier(.2,.6,.3,1)' }).onfinish = () => b.remove();
+  if(trailCanvas && canHover){
+    const ctx = trailCanvas.getContext('2d');
+    let W, H;
+    let resizeTimer = null;
+    function resizeTrail(){
+      W = trailCanvas.width = window.innerWidth;
+      H = trailCanvas.height = window.innerHeight;
     }
+    resizeTrail();
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resizeTrail, 150);
+    });
+
+    const points = [];
+    const MAX = 16;
+    let mx = W/2, my = H/2;
+    let lastMove = Date.now();
+    let rafId = null;
+    let trailRGB = window.__trailRGB || [255,255,255];
+
+    function startLoop(){
+      if(rafId === null) rafId = requestAnimationFrame(drawTrail);
+    }
+
+    window.addEventListener('mousemove', (e)=>{
+      mx = e.clientX; my = e.clientY;
+      lastMove = Date.now();
+      const last = points[points.length - 1];
+      if(!last || Math.hypot(mx - last.x, my - last.y) > 2){
+        points.push({x: mx, y: my});
+        if(points.length > MAX) points.shift();
+      }
+      startLoop();
+    }, {passive: true});
+
+    function drawTrail(){
+      trailRGB = window.__trailRGB || [255,255,255];
+      if(Date.now() - lastMove > 60 && points.length > 0){
+        points.shift();
+      }
+
+      if(points.length < 1){
+        ctx.clearRect(0, 0, W, H);
+        rafId = null;
+        return;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      if(points.length >= 3){
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for(let i = 2; i < points.length; i++){
+          const t = i / points.length;
+          const xc = (points[i-1].x + points[i].x) / 2;
+          const yc = (points[i-1].y + points[i].y) / 2;
+          ctx.beginPath();
+          ctx.moveTo((points[i-2].x + points[i-1].x)/2, (points[i-2].y + points[i-1].y)/2);
+          ctx.quadraticCurveTo(points[i-1].x, points[i-1].y, xc, yc);
+          ctx.strokeStyle = `rgba(${trailRGB[0]},${trailRGB[1]},${trailRGB[2]},${t * t * 0.8})`;
+          ctx.lineWidth = t * 2.5;
+          ctx.stroke();
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc(mx, my, 1.5, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${trailRGB[0]},${trailRGB[1]},${trailRGB[2]},0.9)`;
+      ctx.fill();
+
+      if(Date.now() - lastMove > 60 && points.length === 0){
+        ctx.clearRect(0, 0, W, H);
+        rafId = null;
+      } else {
+        rafId = requestAnimationFrame(drawTrail);
+      }
+    }
+  } else if(trailCanvas){
+    trailCanvas.style.display = 'none';
   }
 
 </script>
@@ -2683,6 +2706,12 @@ function openLightbox(src){
       <span>Очки: <b id="snScore">0</b></span>
     </div>
     <canvas class="minigame__canvas" id="snCanvas" width="234" height="172"></canvas>
+    <div class="snake-pad" id="snPad">
+      <button type="button" class="sn-dir up" data-dir="up" aria-label="Вверх">↑</button>
+      <button type="button" class="sn-dir left" data-dir="left" aria-label="Влево">←</button>
+      <button type="button" class="sn-dir right" data-dir="right" aria-label="Вправо">→</button>
+      <button type="button" class="sn-dir down" data-dir="down" aria-label="Вниз">↓</button>
+    </div>
     <div class="minigame__start" id="snStart">
       <p>Управляй змейкой стрелками или WASD. На телефоне — свайпы по полю. Ешь яблоки 🍎, не врезайся в стены и в себя!</p>
       <button class="minigame__play" id="snPlay" type="button">Играть</button>
@@ -3058,6 +3087,18 @@ function openLightbox(src){
     if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
     if(Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
     else setDir(0, dy > 0 ? 1 : -1);
+  });
+
+  document.querySelectorAll('#snPad .sn-dir').forEach(btn=>{
+    btn.addEventListener('pointerdown', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      if(game.classList.contains('collapsed') || game.classList.contains('start') || game.classList.contains('over')) return;
+      const d = btn.dataset.dir;
+      if(d === 'up') setDir(0, -1);
+      else if(d === 'down') setDir(0, 1);
+      else if(d === 'left') setDir(-1, 0);
+      else if(d === 'right') setDir(1, 0);
+    });
   });
 
   let drag = null;
