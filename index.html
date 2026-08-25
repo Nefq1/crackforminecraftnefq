@@ -40,6 +40,31 @@
     pointer-events: none;
     z-index: 9999;
   }
+  html.has-pick, html.has-pick *{ cursor: none !important; }
+  #pickCursor{
+    position: fixed; left: 0; top: 0;
+    width: 32px; height: 32px;
+    pointer-events: none; z-index: 92; opacity: 0;
+    transition: opacity .2s ease;
+    will-change: transform;
+  }
+  #pickCursor .pick-axe{
+    width: 100%; height: 100%;
+    transform-origin: 72% 72%;
+  }
+  .pick-swing{ animation: pickSwing .28s ease; }
+  @keyframes pickSwing{
+    0%{ transform: rotate(0deg); }
+    35%{ transform: rotate(-46deg); }
+    100%{ transform: rotate(0deg); }
+  }
+  .block-spark{
+    position: fixed; pointer-events: none; z-index: 91;
+    border-radius: 1px; transform: translate(-50%, -50%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    html.has-pick, html.has-pick *{ cursor: auto !important; }
+  }
   .stars{
     position: fixed; inset: 0;
     overflow: hidden;
@@ -1887,6 +1912,10 @@
     .minigame{ right: 8px; bottom: 8px; width: 200px; }
     .minigame__canvas{ height: 130px; }
   }
+  .minigame--left{ right: auto; left: 16px; }
+  @media (max-width: 768px), (hover: none){
+    .minigame--left{ left: 8px; }
+  }
   /* ---- Пасхалка: крипер + тост ---- */
   .secret-creeper{
     position: fixed;
@@ -2148,6 +2177,7 @@
             <li>Добавлены <b>счётчики скачиваний в реальном времени</b>.</li>
             <li>Карточки и текст теперь <b>плавно появляются</b> при прокрутке страницы.</li>
             <li>Заголовок <b>Cracks For Minecraft</b> мягко «плывёт» (плавная анимация покачивания).</li>
+            <li>Добавлена мини-игра <b>«Змейка»</b>: управление стрелками/WASD и свайпами, счёт, панель можно свернуть и перетащить.</li>
             <li>Исправлены некоторые баги и ошибки.</li>
           </ul>
         </div>
@@ -2344,88 +2374,66 @@
 
   const canHover = window.matchMedia('(hover: hover)').matches;
 
-  // Cursor trail
+  // Pickaxe cursor (replaces the trail)
   const trailCanvas = document.getElementById('cursorTrail');
-  if(trailCanvas && canHover){
-    const ctx = trailCanvas.getContext('2d');
-    let W, H;
-    let resizeTimer = null;
-    function resizeTrail(){
-      W = trailCanvas.width = window.innerWidth;
-      H = trailCanvas.height = window.innerHeight;
-    }
-    resizeTrail();
-    window.addEventListener('resize', ()=>{
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resizeTrail, 150);
-    });
-
-    const points = [];
-    const MAX = 16;
-    let mx = W/2, my = H/2;
-    let lastMove = Date.now();
-    let rafId = null;
-    let trailRGB = window.__trailRGB || [255,255,255];
-
-    function startLoop(){
-      if(rafId === null) rafId = requestAnimationFrame(drawTrail);
-    }
-
-    window.addEventListener('mousemove', (e)=>{
-      mx = e.clientX; my = e.clientY;
-      lastMove = Date.now();
-      const last = points[points.length - 1];
-      if(!last || Math.hypot(mx - last.x, my - last.y) > 2){
-        points.push({x: mx, y: my});
-        if(points.length > MAX) points.shift();
-      }
-      startLoop();
+  if(trailCanvas) trailCanvas.style.display = 'none';
+  const reducePick = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(canHover && !reducePick){
+    const pick = document.createElement('div');
+    pick.id = 'pickCursor';
+    pick.setAttribute('aria-hidden', 'true');
+    pick.innerHTML = '<div class="pick-axe"><svg viewBox="0 0 32 32" width="32" height="32" style="overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))">'
+      + '<g transform="rotate(35 16 16)">'
+      + '<rect x="14.3" y="8" width="3.4" height="22" rx="1.6" fill="#9b6a33"/>'
+      + '<path d="M2.5 13 Q16 4.5 29.5 13 Q25 16.5 22.5 13 Q16 8.5 9.5 13 Q7 16.5 2.5 13 Z" fill="var(--accent)"/>'
+      + '<path d="M2.5 13 Q16 4.5 29.5 13 Q25 16.5 22.5 13 Q16 8.5 9.5 13 Q7 16.5 2.5 13 Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.6"/>'
+      + '</g></svg></div>';
+    document.body.appendChild(pick);
+    document.documentElement.classList.add('has-pick');
+    let visible = false;
+    window.addEventListener('pointermove', (e)=>{
+      if(!visible){ pick.style.opacity = '1'; visible = true; }
+      pick.style.transform = 'translate3d(' + (e.clientX - 4) + 'px,' + (e.clientY - 4) + 'px,0)';
     }, {passive: true});
+    window.addEventListener('pointerdown', (e)=>{
+      swingPick(pick);
+      breakBlocks(e.clientX, e.clientY);
+    }, {passive: true});
+    window.addEventListener('blur', ()=>{ pick.style.opacity = '0'; visible = false; });
+    document.addEventListener('pointerleave', ()=>{ pick.style.opacity = '0'; visible = false; });
+  }
 
-    function drawTrail(){
-      trailRGB = window.__trailRGB || [255,255,255];
-      if(Date.now() - lastMove > 60 && points.length > 0){
-        points.shift();
-      }
+  function swingPick(el){
+    const axe = el.querySelector('.pick-axe');
+    if(!axe) return;
+    axe.classList.remove('pick-swing');
+    void axe.offsetWidth;
+    axe.classList.add('pick-swing');
+  }
 
-      if(points.length < 1){
-        ctx.clearRect(0, 0, W, H);
-        rafId = null;
-        return;
-      }
-
-      ctx.clearRect(0, 0, W, H);
-
-      if(points.length >= 3){
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        for(let i = 2; i < points.length; i++){
-          const t = i / points.length;
-          const xc = (points[i-1].x + points[i].x) / 2;
-          const yc = (points[i-1].y + points[i].y) / 2;
-          ctx.beginPath();
-          ctx.moveTo((points[i-2].x + points[i-1].x)/2, (points[i-2].y + points[i-1].y)/2);
-          ctx.quadraticCurveTo(points[i-1].x, points[i-1].y, xc, yc);
-          ctx.strokeStyle = `rgba(${trailRGB[0]},${trailRGB[1]},${trailRGB[2]},${t * t * 0.8})`;
-          ctx.lineWidth = t * 2.5;
-          ctx.stroke();
-        }
-      }
-
-      ctx.beginPath();
-      ctx.arc(mx, my, 1.5, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(${trailRGB[0]},${trailRGB[1]},${trailRGB[2]},0.9)`;
-      ctx.fill();
-
-      if(Date.now() - lastMove > 60 && points.length === 0){
-        ctx.clearRect(0, 0, W, H);
-        rafId = null;
-      } else {
-        rafId = requestAnimationFrame(drawTrail);
-      }
+  function breakBlocks(x, y){
+    const pal = ['#7cb342','#8d6e63','#9e9e9e','#5d4037','#a1887f','#6d4c41','#bdbdbd'];
+    const n = 7 + Math.floor(Math.random() * 4);
+    for(let i = 0; i < n; i++){
+      const b = document.createElement('div');
+      b.className = 'block-spark';
+      const sz = 5 + Math.random() * 6;
+      b.style.width = sz + 'px';
+      b.style.height = sz + 'px';
+      b.style.left = x + 'px';
+      b.style.top = y + 'px';
+      b.style.background = pal[Math.floor(Math.random() * pal.length)];
+      document.body.appendChild(b);
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 14 + Math.random() * 26;
+      const dx = Math.cos(ang) * dist;
+      const dy = Math.sin(ang) * dist - 12;
+      const rot = (Math.random() * 2 - 1) * 200;
+      b.animate([
+        { transform: 'translate(-50%,-50%) translate(0,0) rotate(0deg)', opacity: 1 },
+        { transform: 'translate(-50%,-50%) translate(' + dx + 'px,' + (dy + 36) + 'px) rotate(' + rot + 'deg)', opacity: 0 }
+      ], { duration: 460 + Math.random() * 240, easing: 'cubic-bezier(.2,.6,.3,1)' }).onfinish = () => b.remove();
     }
-  } else if(trailCanvas){
-    trailCanvas.style.display = 'none';
   }
 
 </script>
@@ -2665,6 +2673,27 @@ function openLightbox(src){
     </div>
   </div>
 </aside>
+<aside class="minigame minigame--left start" id="snakeGame" aria-label="Мини-игра Змейка">
+  <div class="minigame__head" id="snHead">
+    <span class="minigame__title">🐍 Змейка</span>
+    <button class="minigame__min" id="snMin" type="button" aria-label="Свернуть" title="Свернуть">–</button>
+  </div>
+  <div class="minigame__body">
+    <div class="minigame__hud">
+      <span>Очки: <b id="snScore">0</b></span>
+    </div>
+    <canvas class="minigame__canvas" id="snCanvas" width="234" height="172"></canvas>
+    <div class="minigame__start" id="snStart">
+      <p>Управляй змейкой стрелками или WASD. На телефоне — свайпы по полю. Ешь яблоки 🍎, не врезайся в стены и в себя!</p>
+      <button class="minigame__play" id="snPlay" type="button">Играть</button>
+    </div>
+    <div class="minigame__over" id="snOver">
+      <span>Игра окончена!</span>
+      <span>Очки: <b id="snFinal">0</b></span>
+      <button class="minigame__restart" id="snRestart" type="button">Заново</button>
+    </div>
+  </div>
+</aside>
 <script>
 (function(){
   const game = document.getElementById('miniGame');
@@ -2859,6 +2888,196 @@ function openLightbox(src){
 
   if('ResizeObserver' in window){ new ResizeObserver(resize).observe(canvas); }
   window.addEventListener('resize', resize, { passive: true });
+  resize();
+  game.classList.add('start');
+  rafId = requestAnimationFrame(tick);
+})();
+</script>
+<script>
+(function(){
+  const game = document.getElementById('snakeGame');
+  if(!game) return;
+  const canvas = document.getElementById('snCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('snScore');
+  const finalEl = document.getElementById('snFinal');
+  const headEl = document.getElementById('snHead');
+  const minBtn = document.getElementById('snMin');
+  const playBtn = document.getElementById('snPlay');
+  const restartBtn = document.getElementById('snRestart');
+
+  let W = 0, H = 0, dpr = 1, rafId = null;
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    if(!r.width) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    W = r.width; H = r.height;
+  }
+
+  function accent(){
+    return (window.__trailRGB && Array.isArray(window.__trailRGB)) ? window.__trailRGB : [120, 230, 140];
+  }
+
+  const CELL = 16;
+  let cols = 0, rows = 0;
+  let snake = [], prev = [], dir = {x:1,y:0}, nextDir = {x:1,y:0}, food = null, score = 0, running = false, lastStep = 0, stepMs = 150;
+
+  function placeFood(){
+    const free = [];
+    for(let y = 0; y < rows; y++) for(let x = 0; x < cols; x++){
+      if(!snake.some(s => s.x === x && s.y === y)) free.push({x, y});
+    }
+    food = free.length ? free[Math.floor(Math.random() * free.length)] : null;
+  }
+
+  function reset(){
+    cols = Math.max(8, Math.floor(W / CELL));
+    rows = Math.max(8, Math.floor(H / CELL));
+    const cx = Math.floor(cols / 2), cy = Math.floor(rows / 2);
+    snake = [ {x:cx, y:cy}, {x:cx - 1, y:cy}, {x:cx - 2, y:cy} ];
+    prev = snake.map(s => ({x:s.x, y:s.y}));
+    dir = {x:1, y:0}; nextDir = {x:1, y:0};
+    score = 0; stepMs = 200;
+    scoreEl.textContent = '0';
+    placeFood();
+    running = true;
+    game.classList.remove('start', 'over');
+    lastStep = performance.now();
+  }
+
+  function setDir(nx, ny){
+    if(nx === -dir.x && ny === -dir.y) return;
+    nextDir = {x:nx, y:ny};
+  }
+
+  function gameOver(){
+    running = false;
+    finalEl.textContent = score;
+    game.classList.add('over');
+  }
+
+  function step(){
+    dir = nextDir;
+    const h = snake[0];
+    const nx = h.x + dir.x, ny = h.y + dir.y;
+    if(nx < 0 || ny < 0 || nx >= cols || ny >= rows) return gameOver();
+    if(snake.some(s => s.x === nx && s.y === ny)) return gameOver();
+    const old = snake;
+    const grew = !!(food && nx === food.x && ny === food.y);
+    const newSnake = [ {x:nx, y:ny} ];
+    for(let i = 0; i < old.length - (grew ? 0 : 1); i++) newSnake.push(old[i]);
+    const newPrev = [ {x:old[0].x, y:old[0].y} ];
+    for(let i = 1; i < newSnake.length; i++){
+      const src = old[i] || old[old.length - 1];
+      newPrev.push({x:src.x, y:src.y});
+    }
+    snake = newSnake;
+    prev = newPrev;
+    if(grew){
+      score++; scoreEl.textContent = score;
+      stepMs = Math.max(110, 200 - score * 3);
+      placeFood();
+    }
+    lastStep = performance.now();
+  }
+
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    const [ar, ag, ab] = accent();
+    if(food){
+      const fx = food.x * CELL + CELL / 2, fy = food.y * CELL + CELL / 2;
+      ctx.fillStyle = '#ff4d6d';
+      ctx.shadowColor = '#ff4d6d'; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.arc(fx, fy, CELL * 0.36, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    const t = running ? Math.min(1, (performance.now() - lastStep) / stepMs) : 1;
+    for(let i = snake.length - 1; i >= 0; i--){
+      const p = prev[i] || snake[i];
+      const s = snake[i];
+      const gx = p.x + (s.x - p.x) * t;
+      const gy = p.y + (s.y - p.y) * t;
+      const x = gx * CELL + 1.5, y = gy * CELL + 1.5, sz = CELL - 3;
+      const isHead = i === 0;
+      if(isHead){
+        ctx.fillStyle = 'rgb(' + ar + ',' + ag + ',' + ab + ')';
+        ctx.shadowColor = 'rgb(' + ar + ',' + ag + ',' + ab + ')'; ctx.shadowBlur = 14;
+      } else {
+        ctx.fillStyle = 'rgba(' + ar + ',' + ag + ',' + ab + ',0.6)';
+        ctx.shadowBlur = 0;
+      }
+      roundRect(x, y, sz, sz, 5);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  function tick(now){
+    rafId = requestAnimationFrame(tick);
+    if(game.classList.contains('collapsed') || document.hidden) return;
+    if(running && now - lastStep > stepMs){
+      lastStep = now;
+      step();
+    }
+    if(running || game.classList.contains('over')) draw();
+    else ctx.clearRect(0, 0, W, H);
+  }
+
+  playBtn.addEventListener('click', (e)=>{ e.stopPropagation(); reset(); });
+  restartBtn.addEventListener('click', (e)=>{ e.stopPropagation(); reset(); });
+  minBtn.addEventListener('click', (e)=>{ e.stopPropagation(); game.classList.toggle('collapsed'); });
+
+  window.addEventListener('keydown', (e)=>{
+    if(game.classList.contains('collapsed') || game.classList.contains('start') || game.classList.contains('over')) return;
+    const c = e.code;
+    if(c === 'ArrowUp' || c === 'KeyW'){ setDir(0, -1); e.preventDefault(); }
+    else if(c === 'ArrowDown' || c === 'KeyS'){ setDir(0, 1); e.preventDefault(); }
+    else if(c === 'ArrowLeft' || c === 'KeyA'){ setDir(-1, 0); e.preventDefault(); }
+    else if(c === 'ArrowRight' || c === 'KeyD'){ setDir(1, 0); e.preventDefault(); }
+  });
+
+  let swipe = null;
+  canvas.addEventListener('pointerdown', (e)=>{ swipe = {x:e.clientX, y:e.clientY}; });
+  canvas.addEventListener('pointerup', (e)=>{
+    if(!swipe || !running) return;
+    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+    swipe = null;
+    if(Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+    if(Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+  });
+
+  let drag = null;
+  headEl.addEventListener('pointerdown', (e)=>{
+    if(e.target === minBtn) return;
+    drag = { x: e.clientX, y: e.clientY, l: game.offsetLeft, t: game.offsetTop };
+    headEl.setPointerCapture(e.pointerId);
+  });
+  headEl.addEventListener('pointermove', (e)=>{
+    if(!drag) return;
+    game.style.left = (drag.l + (e.clientX - drag.x)) + 'px';
+    game.style.top = (drag.t + (e.clientY - drag.y)) + 'px';
+    game.style.right = 'auto';
+    game.style.bottom = 'auto';
+  });
+  headEl.addEventListener('pointerup', ()=>{ drag = null; });
+
+  function onResize(){ resize(); if(running){ cols = Math.max(8, Math.floor(W / CELL)); rows = Math.max(8, Math.floor(H / CELL)); } }
+  if('ResizeObserver' in window){ new ResizeObserver(onResize).observe(canvas); }
+  window.addEventListener('resize', onResize, { passive: true });
   resize();
   game.classList.add('start');
   rafId = requestAnimationFrame(tick);
