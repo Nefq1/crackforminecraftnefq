@@ -441,10 +441,14 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 10px var(--accent-glow));
-    animation: titleFlow 18s ease-in-out infinite;
+    animation: titleFlow 18s ease-in-out infinite, titleFloat 6s ease-in-out infinite;
   }
   @keyframes titleFlow{
     to{ background-position: 220% center; }
+  }
+  @keyframes titleFloat{
+    0%, 100%{ transform: scaleX(1.14) translateY(0) rotate(0deg); }
+    50%{ transform: scaleX(1.14) translateY(-12px) rotate(-0.6deg); }
   }
   @media (prefers-reduced-motion: reduce){
     h1.title{ animation: none; }
@@ -624,6 +628,30 @@
     background: var(--pill);
     padding: 6px 12px;
     border-radius: 8px;
+  }
+  .dl-count{
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--pill);
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+  .reveal{
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity, transform;
+  }
+  .reveal.in{
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity: 1 !important; transform: none !important; transition: none !important; }
   }
   .dl-btn{
     background: transparent;
@@ -1973,7 +2001,7 @@
         <h3>Monoton Client</h3>
         <div class="card-footer">
           <span class="version-pill">1.16.5</span>
-          <a class="dl-btn" href="https://github.com/migodi2/cracksforminecraftmigodi2/releases/download/v1.0/Monoton-cracked.rar" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/Monoton-cracked.rar" download data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
@@ -1987,14 +2015,14 @@
         <h3>Nuclear Client</h3>
         <div class="card-footer">
           <span class="version-pill">1.21.4</span>
-          <a class="dl-btn" href="https://github.com/migodi2/cracksforminecraftmigodi2/releases/download/v1.0/nuclear.jar" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/Nuclear.rar" download data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
         <h3>Catlavan Client</h3>
         <div class="card-footer">
           <span class="version-pill">1.16.5</span>
-          <a class="dl-btn" href="https://github.com/migodi2/cracksforminecraftmigodi2/releases/download/v1.0/Catlavan.zip" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/Catlavan.zip" download data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
@@ -2053,28 +2081,21 @@
         <h3>Destra Visuals</h3>
         <div class="card-footer">
           <span class="version-pill">1.21.4</span>
-          <a class="dl-btn" href="https://github.com/migodi2/cracksforminecraftmigodi2/releases/download/v1.0/destravisuals-cracked.jar" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/DestraVisuaks.rar" download data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
         <h3>PulseVisuals</h3>
         <div class="card-footer">
           <span class="version-pill">1.21.11</span>
-          <a class="dl-btn" href="https://github.com/migodi2/cracksforminecraftmigodi2/releases/download/v1.0/PulseVisuals.1.21.11.jar" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/PulseVisual.1.21.11.rar" download data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
         <h3>ReallyVisuals</h3>
         <div class="card-footer">
           <span class="version-pill">1.16.5</span>
-          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/ReallyVisuals.rar" download data-i18n="dl">Скачать</a>
-        </div>
-      </div>
-      <div class="card">
-        <h3>ReallyVisuals</h3>
-        <div class="card-footer">
-          <span class="version-pill">1.21.4</span>
-          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/ReallyVisuals.1.21.4.rar" download data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/ReallyVisuals.1.16.5.rar" download data-i18n="dl">Скачать</a>
         </div>
       </div>
     </div>
@@ -2121,13 +2142,13 @@
     <h2 class="section-title" data-i18n="tab_updates">Обновление</h2>
     <div class="updates-list">
       <div class="update-item">
-        <div class="update-date">19.08.2026</div>
+        <div class="update-date">25.08.2026</div>
         <div class="update-body">
           <ul>
-            <li>Во вкладку «Визуалы» добавлен <b>ReallyVisuals</b> (1.21.4).</li>
-            <li>Во вкладку «Читы» добавлен <b>Delta FULL.FIX</b> (1.21.4).</li>
-            <li>Во вкладку «Читы» добавлен <b>WestraClientFREE</b> (от @soezproject).</li>
-            <li>Удалена старая версия <b>Delta Client</b> из «Читов».</li>
+            <li>Добавлены <b>счётчики скачиваний в реальном времени</b>.</li>
+            <li>Карточки и текст теперь <b>плавно появляются</b> при прокрутке страницы.</li>
+            <li>Заголовок <b>Cracks For Minecraft</b> мягко «плывёт» (плавная анимация покачивания).</li>
+            <li>Исправлены некоторые баги и ошибки.</li>
           </ul>
         </div>
       </div>
@@ -2969,6 +2990,83 @@ function openLightbox(src){
       showToast(MSG[hit]);
     }
   });
+})();
+</script>
+<script>
+(function(){
+  const REPOS = ['Nefq1/crackforminecraftnefq'];
+  const assetCounts = {};
+
+  function parseAssetName(href){
+    const m = (href || '').match(/\/download\/[^/]+\/([^/?#]+)$/);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  async function loadCounts(){
+    for(const repo of REPOS){
+      try{
+        const res = await fetch('https://api.github.com/repos/'+repo+'/releases?per_page=100', {
+          headers: { 'Accept': 'application/vnd.github+json' }
+        });
+        if(!res.ok) continue;
+        const releases = await res.json();
+        for(const rel of releases){
+          if(!rel.assets) continue;
+          for(const a of rel.assets){
+            assetCounts[a.name] = (assetCounts[a.name] || 0) + (a.download_count || 0);
+          }
+        }
+      }catch(e){ /* ignore network errors */ }
+    }
+    applyCounts();
+  }
+
+  function applyCounts(){
+    document.querySelectorAll('.dl-btn').forEach(btn=>{
+      const name = parseAssetName(btn.getAttribute('href'));
+      if(!name) return;
+      const count = assetCounts[name];
+      if(count === undefined) return;
+      const card = btn.closest('.card');
+      let el = card.querySelector('.dl-count');
+      if(!el){
+        el = document.createElement('span');
+        el.className = 'dl-count';
+        card.appendChild(el);
+      }
+      el.textContent = '⬇ ' + count.toLocaleString('ru-RU');
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', loadCounts);
+  }else{
+    loadCounts();
+  }
+  setInterval(loadCounts, 120000);
+})();
+</script>
+<script>
+(function(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.card, .section-title, .search-box, .cheats-note, .update-item, .adv-card');
+  targets.forEach(el => el.classList.add('reveal'));
+
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(el => el.classList.add('in'));
+    return;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  targets.forEach(el => io.observe(el));
 })();
 </script>
 </body></html>
