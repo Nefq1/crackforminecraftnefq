@@ -1502,6 +1502,10 @@
     padding: 16px 18px;
     animation: msg-in .3s ease;
   }
+  .update-item--today{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent), 0 8px 26px rgba(0,0,0,.45);
+  }
   .update-date{
     flex-shrink: 0;
     font-size: 12px;
@@ -2192,16 +2196,16 @@
   <section id="updates" class="tab-panel">
     <h2 class="section-title" data-i18n="tab_updates">Обновление</h2>
     <div class="updates-list">
-      <div class="update-item">
-        <div class="update-date">25.08.2026</div>
+      <div class="update-item update-item--today">
+        <div class="update-date" id="todayUpdateDate">25.08.2026</div>
         <div class="update-body">
           <ul>
-            <li>Добавлены <b>счётчики скачиваний в реальном времени</b>.</li>
-            <li>Карточки и текст теперь <b>плавно появляются</b> при прокрутке страницы.</li>
-            <li>Заголовок <b>Cracks For Minecraft</b> мягко «плывёт» (плавная анимация покачивания).</li>
             <li>Добавлена мини-игра <b>«Змейка»</b>: управление стрелками/WASD и свайпами, счёт, панель можно свернуть и перетащить.</li>
             <li>Во вкладку «Читы» добавлен <b>Celestial</b> (1.16.5).</li>
+            <li>Во вкладку «Читы» добавлен <b>PouchClient</b> (1.21.4).</li>
+            <li>Во вкладку «Читы» добавлен <b>Wexside</b> (1.21.11).</li>
             <li>В «Змейке» управление теперь адаптивное: на телефоне — экранные стрелки, на ПК — WASD.</li>
+            <li>Змейка теперь начинается с 2 квадратиков (было 3).</li>
             <li>Исправлены некоторые баги и ошибки.</li>
           </ul>
         </div>
@@ -2989,7 +2993,7 @@ function openLightbox(src){
     cols = Math.max(8, Math.floor(W / CELL));
     rows = Math.max(8, Math.floor(H / CELL));
     const cx = Math.floor(cols / 2), cy = Math.floor(rows / 2);
-    snake = [ {x:cx, y:cy}, {x:cx - 1, y:cy}, {x:cx - 2, y:cy} ];
+    snake = [ {x:cx, y:cy}, {x:cx - 1, y:cy} ];
     prev = snake.map(s => ({x:s.x, y:s.y}));
     dir = {x:1, y:0}; nextDir = {x:1, y:0};
     score = 0; stepMs = 200;
@@ -3350,6 +3354,16 @@ function openLightbox(src){
   }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
   targets.forEach(el => io.observe(el));
+})();
+</script>
+<script>
+(function(){
+  const el = document.getElementById('todayUpdateDate');
+  if(el){
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    el.textContent = pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
 })();
 </script>
 </body></html>
