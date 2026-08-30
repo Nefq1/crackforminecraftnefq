@@ -1955,9 +1955,213 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+  /* ---- Loading screen ---- */
+  #loader{
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #0a0a0a; gap: 18px;
+    transition: opacity .5s ease, visibility .5s ease;
+  }
+  #loader.hide{ opacity: 0; visibility: hidden; pointer-events: none; }
+  #loader .loader-title{
+    font-size: 26px; font-weight: 800; letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--accent), #fff, var(--accent));
+    background-size: 220% auto;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    animation: titleFlow 3s linear infinite;
+  }
+  #loader .loader-bar{
+    width: 160px; height: 4px; background: rgba(255,255,255,0.1);
+    border-radius: 4px; overflow: hidden;
+  }
+  #loader .loader-bar::after{
+    content: ''; display: block; width: 40%; height: 100%;
+    background: var(--accent); border-radius: 4px;
+    animation: loaderSlide 1s ease-in-out infinite;
+  }
+  @keyframes loaderSlide{
+    0%{ transform: translateX(-100%); }
+    100%{ transform: translateX(350%); }
+  }
+  /* ---- Back to top ---- */
+  #backToTop{
+    position: fixed; right: 16px; bottom: 220px; z-index: 81;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    border: 1px solid var(--accent); color: var(--accent);
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: all .3s ease;
+    backdrop-filter: blur(6px);
+  }
+  #backToTop.show{ opacity: 1; visibility: visible; }
+  #backToTop:hover{ background: color-mix(in srgb, var(--accent) 40%, transparent); }
+  @media (max-width: 768px), (hover: none){
+    #backToTop{ right: 8px; bottom: 210px; width: 38px; height: 38px; font-size: 18px; }
+  }
+  /* ---- Favorites ---- */
+  .fav-btn{
+    position: absolute; top: 10px; right: 10px; z-index: 5;
+    background: rgba(0,0,0,0.5); border: none; cursor: pointer;
+    font-size: 18px; padding: 4px 6px; border-radius: 8px;
+    transition: transform .2s ease; line-height: 1;
+    backdrop-filter: blur(4px);
+  }
+  .fav-btn:hover{ transform: scale(1.2); }
+  .fav-btn.active{ color: #ff4d6d; }
+  .card{ position: relative; }
+  .fav-filter-bar{
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  }
+  .fav-toggle{
+    background: transparent; border: 1px solid var(--card-border);
+    color: var(--text-dim); font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    transition: all .2s ease;
+  }
+  .fav-toggle:hover, .fav-toggle.active{
+    border-color: var(--accent); color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  /* ---- Share modal ---- */
+  #shareBtn{
+    position: fixed; right: 16px; bottom: 270px; z-index: 81;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    border: 1px solid var(--accent); color: var(--accent);
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px); transition: all .3s ease;
+  }
+  #shareBtn:hover{ background: color-mix(in srgb, var(--accent) 40%, transparent); }
+  @media (max-width: 768px), (hover: none){
+    #shareBtn{ right: 8px; bottom: 260px; width: 38px; height: 38px; font-size: 16px; }
+  }
+  .share-modal{
+    position: fixed; inset: 0; z-index: 9998;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  }
+  .share-modal.open{ display: flex; }
+  .share-box{
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 24px; width: 360px; max-width: 90vw;
+    text-align: center; display: flex; flex-direction: column; gap: 14px;
+    box-sizing: border-box;
+  }
+  .share-box h3{ margin: 0; font-size: 16px; color: var(--text); }
+  .share-link{
+    display: flex; gap: 6px; overflow: hidden;
+  }
+  .share-link input{
+    flex: 1; min-width: 0; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--card-border); background: rgba(255,255,255,0.06);
+    color: var(--text); font-size: 13px; outline: none;
+    box-sizing: border-box;
+  }
+  .share-link button{
+    flex-shrink: 0; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent); font-weight: 700;
+    cursor: pointer; font-size: 13px; transition: all .2s ease;
+    box-sizing: border-box; white-space: nowrap;
+  }
+  .share-link button:hover{ background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  .share-close{
+    background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px;
+  }
+  /* ---- Version filter ---- */
+  .version-filter{
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  }
+  .version-filter label{ font-size: 13px; color: var(--text-dim); font-weight: 600; }
+  .version-filter select{
+    padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--card-border); background: rgba(255,255,255,0.06);
+    color: var(--text); font-size: 13px; cursor: pointer; outline: none;
+  }
+  .version-filter select option{ background: #1a1a1a; color: var(--text); }
+  html.light{
+    --bg: #f0f2f5; --card: #fff; --card-border: rgba(0,0,0,0.12);
+    --text: #1a1a1a; --text-dim: #555; --pill: rgba(0,0,0,0.06);
+  }
+  html.light body{ background: var(--bg); color: var(--text); }
+  html.light .minigame{ background: rgba(255,255,255,0.92); }
+  html.light .minigame__canvas{ background: repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 17px), repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 17px), #e8e8e8; }
+
+  /* ---- Reviews ---- */
+  .reviews-form{
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 28px;
+  }
+  .reviews-form input,
+  .reviews-form textarea{
+    padding: 12px 16px; border-radius: 12px;
+    border: 1px solid var(--card-border); background: rgba(255,255,255,0.05);
+    color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .2s ease;
+    resize: vertical;
+  }
+  .reviews-form input:focus,
+  .reviews-form textarea:focus{ border-color: var(--accent); }
+  .reviews-form textarea{ min-height: 80px; }
+  .reviews-form .row{ display: flex; gap: 10px; align-items: center; }
+  .reviews-form .row input{ flex: 1; }
+  .reviews-form .row select{
+    padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--card-border); background: rgba(255,255,255,0.05);
+    color: var(--text); font-size: 14px; outline: none; cursor: pointer;
+  }
+  .reviews-form .row select option{ background: #1a1a1a; }
+  .reviews-submit{
+    padding: 12px 28px; border-radius: 12px;
+    border: 1px solid var(--accent); background: var(--accent);
+    color: #000; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: all .2s ease; align-self: flex-start;
+  }
+  .reviews-submit:hover{ filter: brightness(1.15); transform: scale(1.02); }
+  .reviews-submit:disabled{ opacity: .5; cursor: not-allowed; transform: none; }
+  .reviews-feed{ display: flex; flex-direction: column; gap: 14px; }
+  .review-card{
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 16px 18px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .review-card:hover{ transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .review-header{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .review-author{ font-weight: 700; color: var(--accent); font-size: 14px; }
+  .review-stars{ color: #ffb000; font-size: 13px; letter-spacing: 1px; }
+  .review-text{ color: var(--text-dim); font-size: 14px; line-height: 1.5; margin: 0; }
+  .review-date{ color: var(--text-dim); font-size: 11px; opacity: .6; margin-top: 8px; }
+  .reviews-empty{ color: var(--text-dim); text-align: center; padding: 30px 0; font-size: 14px; }
+  .reviews-count{ color: var(--text-dim); font-size: 13px; margin-bottom: 16px; }
+  .reviews-toast{
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--accent); color: #000; padding: 10px 20px;
+    border-radius: 10px; font-weight: 600; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: all .3s ease; z-index: 999;
+  }
+  .reviews-toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
 </style>
 </head>
 <body>
+<div id="loader">
+  <div class="loader-title">CRACKS FOR MINECRAFT</div>
+  <div class="loader-bar"></div>
+</div>
+<button id="backToTop" aria-label="Наверх" title="Наверх">↑</button>
+<button id="shareBtn" aria-label="Поделиться" title="Поделиться">↗</button>
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <h3>Поделиться сайтом</h3>
+    <div class="share-link">
+      <input type="text" id="shareUrl" readonly>
+      <button id="copyLink">Копировать</button>
+    </div>
+    <button class="share-close" id="shareClose">Закрыть</button>
+  </div>
+</div>
 <canvas id="cursorTrail"></canvas>
 <div class="aurora"></div>
 <div class="deep-glow"></div>
@@ -1994,6 +2198,7 @@
     <button class="tab-btn" data-tab="visuals" data-i18n="tab_visuals">Визуалы</button>
     <button class="tab-btn" data-tab="respacks" data-i18n="tab_respacks">Ресурспаки</button>
       <button class="tab-btn" data-tab="updates" data-i18n="tab_updates">Обновление</button>
+      <button class="tab-btn" data-tab="reviews" data-i18n="tab_reviews">Отзывы</button>
     </nav>
   </div>
 
@@ -2001,6 +2206,18 @@
     <h2 class="section-title" data-i18n="cheats_title">Читы</h2>
     <div class="search-box">
       <input type="search" id="cheatsSearch" placeholder="Поиск читов…" data-i18n-placeholder="search_ph" autocomplete="off">
+    </div>
+    <div class="version-filter">
+      <label>Версия:</label>
+      <select id="versionFilter">
+        <option value="all">Все версии</option>
+        <option value="1.21.11">1.21.11</option>
+        <option value="1.21.4">1.21.4</option>
+        <option value="1.16.5">1.16.5</option>
+      </select>
+    </div>
+    <div class="fav-filter-bar">
+      <button class="fav-toggle" id="favToggle">★ Избранное</button>
     </div>
     <div class="grid" id="cheatsGrid">
       <div class="card">
@@ -2197,7 +2414,18 @@
     <h2 class="section-title" data-i18n="tab_updates">Обновление</h2>
     <div class="updates-list">
       <div class="update-item update-item--today">
-        <div class="update-date" id="todayUpdateDate">25.08.2026</div>
+        <div class="update-date">30.08.2026</div>
+        <div class="update-body">
+          <ul>
+            <li>Добавлена вкладка <b>«Отзывы»</b> с отправкой в реальном времени (Firebase).</li>
+            <li>Защита отзывов: серверные правила, антиспам, ловушка для ботов.</li>
+            <li>Исправлено позиционирование плавающих кнопок (наверх, поделиться).</li>
+            <li>Исправлено переполнение кнопки «Копировать» в модалке «Поделиться».</li>
+          </ul>
+        </div>
+      </div>
+      <div class="update-item">
+        <div class="update-date">25.08.2026</div>
         <div class="update-body">
           <ul>
             <li>Добавлена мини-игра <b>«Змейка»</b>: управление стрелками/WASD и свайпами, счёт, панель можно свернуть и перетащить.</li>
@@ -2233,6 +2461,30 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <section id="reviews" class="tab-panel">
+    <h2 class="section-title" data-i18n="reviews_title">Отзывы</h2>
+    <div class="reviews-form" id="reviewsForm">
+      <div class="row">
+        <input type="text" id="reviewName" maxlength="20" placeholder="Ваше имя" data-i18n-placeholder="review_name_ph" required>
+        <select id="reviewRating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+      </div>
+      <textarea id="reviewText" maxlength="500" placeholder="Напишите отзыв…" data-i18n-placeholder="review_text_ph" required></textarea>
+      <input type="text" id="reviewHoney" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;" tabindex="-1" autocomplete="off">
+      <button class="reviews-submit" id="reviewSubmit" data-i18n="review_submit">Отправить</button>
+    </div>
+    <div class="reviews-count" id="reviewsCount"></div>
+    <div class="reviews-feed" id="reviewsFeed">
+      <div class="reviews-empty" data-i18n="reviews_empty">Пока нет отзывов. Будьте первым!</div>
+    </div>
+    <div class="reviews-toast" id="reviewsToast">Отзыв опубликован!</div>
   </section>
 
   <section class="advantages-section">
@@ -2305,7 +2557,15 @@
       profile_upload: 'добавить аватарку',
       profile_registered: 'Регистрация:',
       profile_lastvisit: 'Последний визит:',
-      chat_title: 'Чат'
+      chat_title: 'Чат',
+      tab_reviews: 'Отзывы',
+      reviews_title: 'Отзывы',
+      review_name_ph: 'Ваше имя',
+      review_text_ph: 'Напишите отзыв…',
+      review_submit: 'Отправить',
+      reviews_empty: 'Пока нет отзывов. Будьте первым!',
+      reviews_toast: 'Отзыв опубликован!',
+      reviews_count: 'Отзывов: '
     },
     en: {
       tab_cheats: 'Cheats',
@@ -2335,7 +2595,15 @@
       profile_upload: 'add avatar',
       profile_registered: 'Registered:',
       profile_lastvisit: 'Last visit:',
-      chat_title: 'Chat'
+      chat_title: 'Chat',
+      tab_reviews: 'Reviews',
+      reviews_title: 'Reviews',
+      review_name_ph: 'Your name',
+      review_text_ph: 'Write a review…',
+      review_submit: 'Submit',
+      reviews_empty: 'No reviews yet. Be the first!',
+      reviews_toast: 'Review published!',
+      reviews_count: 'Reviews: '
     }
   };
   let currentLang = 'ru';
@@ -3358,16 +3626,6 @@ function openLightbox(src){
 </script>
 <script>
 (function(){
-  const el = document.getElementById('todayUpdateDate');
-  if(el){
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    el.textContent = pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear();
-  }
-})();
-</script>
-<script>
-(function(){
   function triggerDownload(url){
     try{
       const f = document.createElement('iframe');
@@ -3388,6 +3646,307 @@ function openLightbox(src){
       triggerDownload(url);
     });
   });
+})();
+</script>
+<script>
+(function(){
+  /* ---- Loading screen ---- */
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      var loader = document.getElementById('loader');
+      if(loader) loader.classList.add('hide');
+    }, 600);
+  });
+
+  /* ---- Back to top ---- */
+  var btt = document.getElementById('backToTop');
+  if(btt){
+    window.addEventListener('scroll', function(){
+      if(window.scrollY > 400) btt.classList.add('show');
+      else btt.classList.remove('show');
+    }, {passive:true});
+    btt.addEventListener('click', function(){
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  }
+
+  /* ---- Share ---- */
+  var shareBtn = document.getElementById('shareBtn');
+  var shareModal = document.getElementById('shareModal');
+  var shareUrl = document.getElementById('shareUrl');
+  var copyLink = document.getElementById('copyLink');
+  var shareClose = document.getElementById('shareClose');
+  if(shareBtn && shareModal){
+    shareBtn.addEventListener('click', function(){
+      shareUrl.value = 'https://nefq1.github.io/crackforminecraftnefq/';
+      shareModal.classList.add('open');
+    });
+    shareClose.addEventListener('click', function(){ shareModal.classList.remove('open'); });
+    shareModal.addEventListener('click', function(e){ if(e.target === shareModal) shareModal.classList.remove('open'); });
+    copyLink.addEventListener('click', function(){
+      shareUrl.select();
+      navigator.clipboard.writeText(shareUrl.value).then(function(){
+        copyLink.textContent = 'Скопировано!';
+        setTimeout(function(){ copyLink.textContent = 'Копировать'; }, 1500);
+      });
+    });
+  }
+
+  /* ---- Favorites ---- */
+  var favKey = 'nqf-favs';
+  var favs = JSON.parse(localStorage.getItem(favKey) || '[]');
+  var favShowing = false;
+
+  function addFavButtons(){
+    document.querySelectorAll('.card').forEach(function(card){
+      if(card.querySelector('.fav-btn')) return;
+      var dl = card.querySelector('.dl-btn');
+      if(!dl) return;
+      var href = dl.getAttribute('href') || '';
+      var name = href.split('/').pop() || card.querySelector('h3')?.textContent || '';
+      var btn = document.createElement('button');
+      btn.className = 'fav-btn' + (favs.indexOf(name) !== -1 ? ' active' : '');
+      btn.textContent = favs.indexOf(name) !== -1 ? '★' : '☆';
+      btn.setAttribute('aria-label', 'В избранное');
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var idx = favs.indexOf(name);
+        if(idx === -1){ favs.push(name); btn.classList.add('active'); btn.textContent = '★'; }
+        else{ favs.splice(idx,1); btn.classList.remove('active'); btn.textContent = '☆'; }
+        localStorage.setItem(favKey, JSON.stringify(favs));
+        applyFavFilter();
+      });
+      card.appendChild(btn);
+    });
+  }
+
+  var favToggle = document.getElementById('favToggle');
+  if(favToggle){
+    favToggle.addEventListener('click', function(){
+      favShowing = !favShowing;
+      favToggle.classList.toggle('active', favShowing);
+      applyFavFilter();
+    });
+  }
+
+  function applyFavFilter(){
+    if(!favShowing){ document.querySelectorAll('.card').forEach(function(c){ c.style.display=''; }); return; }
+    document.querySelectorAll('.card').forEach(function(card){
+      var dl = card.querySelector('.dl-btn');
+      if(!dl){ card.style.display=''; return; }
+      var href = dl.getAttribute('href') || '';
+      var name = href.split('/').pop() || '';
+      card.style.display = favs.indexOf(name) !== -1 ? '' : 'none';
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', addFavButtons);
+  }else{
+    addFavButtons();
+  }
+
+  /* ---- Version filter ---- */
+  var versionFilter = document.getElementById('versionFilter');
+  if(versionFilter){
+    versionFilter.addEventListener('change', function(){
+      var v = versionFilter.value;
+      document.querySelectorAll('#cheatsGrid .card').forEach(function(card){
+        if(v === 'all'){ card.style.display=''; return; }
+        var pill = card.querySelector('.version-pill');
+        card.style.display = (pill && pill.textContent.trim() === v) ? '' : 'none';
+      });
+    });
+  }
+})();
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+(function(){
+  var firebaseConfig = {
+    apiKey: "AIzaSyAs0gO57MKXaPqUZS-8eid3T6HBuguXpRs",
+    authDomain: "crackforminecraftnefq.firebaseapp.com",
+    databaseURL: "https://crackforminecraftnefq-default-rtdb.firebaseio.com",
+    projectId: "crackforminecraftnefq",
+    storageBucket: "crackforminecraftnefq.firebasestorage.app",
+    messagingSenderId: "203343669542",
+    appId: "1:203343669542:web:2bb33fb9d7caa7f54579e7"
+  };
+  var feed = document.getElementById('reviewsFeed');
+  var countEl = document.getElementById('reviewsCount');
+  var submitBtn = document.getElementById('reviewSubmit');
+  var toast = document.getElementById('reviewsToast');
+  var nameInput = document.getElementById('reviewName');
+  var textInput = document.getElementById('reviewText');
+  var ratingSelect = document.getElementById('reviewRating');
+  var honeypot = document.getElementById('reviewHoney');
+
+  var fbReady = false;
+  var db = null;
+  var reviewsRef = null;
+  var lastSubmitTime = 0;
+  var COOLDOWN_MS = 30000;
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    reviewsRef = db.ref('reviews');
+    firebase.auth().signInAnonymously().then(function(){
+      fbReady = true;
+      startReviewsListener();
+    }).catch(function(){
+      fbReady = false;
+      renderLocalFeed();
+    });
+  } catch(e){
+    fbReady = false;
+    renderLocalFeed();
+  }
+
+  function starsStr(n){
+    var s = '';
+    for(var i=0;i<5;i++) s += i < n ? '★' : '☆';
+    return s;
+  }
+
+  function formatDate(ts){
+    var d = new Date(ts);
+    var dd = String(d.getDate()).padStart(2,'0');
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var yyyy = d.getFullYear();
+    var hh = String(d.getHours()).padStart(2,'0');
+    var mi = String(d.getMinutes()).padStart(2,'0');
+    return dd+'.'+mm+'.'+yyyy+' '+hh+':'+mi;
+  }
+
+  function escapeHtml(t){
+    var d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+  }
+
+  function stripTags(s){
+    return s.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, '');
+  }
+
+  function hasSpamPattern(s){
+    var low = s.toLowerCase();
+    if(/(.)\1{7,}/.test(s)) return true;
+    if(/https?:\/\//.test(s)) return true;
+    if(/\b(fuck|shit|damn|ass|bitch|spam|casino|earn money|free crypto)\b/i.test(low)) return true;
+    return false;
+  }
+
+  function renderReview(r){
+    var card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML =
+      '<div class="review-header">' +
+        '<span class="review-author">' + escapeHtml(r.name || 'Аноним') + '</span>' +
+        '<span class="review-stars">' + starsStr(r.rating || 5) + '</span>' +
+      '</div>' +
+      '<p class="review-text">' + escapeHtml(r.text || '') + '</p>' +
+        '<div class="review-date">' + formatDate(r.ts || Date.now()) + '</div>';
+    return card;
+  }
+
+  function showToast(msg){
+    toast.textContent = msg || 'Отзыв опубликован!';
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2500);
+  }
+
+  if(submitBtn){
+    submitBtn.addEventListener('click', function(){
+      if(honeypot && honeypot.value) return;
+
+      var now = Date.now();
+      if(now - lastSubmitTime < COOLDOWN_MS){
+        var sec = Math.ceil((COOLDOWN_MS - (now - lastSubmitTime)) / 1000);
+        showToast('Подождите ' + sec + ' сек. перед следующим отзывом');
+        return;
+      }
+
+      var name = stripTags((nameInput.value || '').trim());
+      var text = stripTags((textInput.value || '').trim());
+      var rating = parseInt(ratingSelect.value) || 5;
+
+      if(!name || name.length < 1){ nameInput.focus(); return; }
+      if(!text || text.length < 3){ textInput.focus(); return; }
+      if(hasSpamPattern(name) || hasSpamPattern(text)){
+        showToast('Отзыв заблокирован (спам)');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      var review = {
+        name: name.substring(0, 20),
+        text: text.substring(0, 500),
+        rating: Math.min(5, Math.max(1, rating)),
+        ts: firebase.database.ServerValue.TIMESTAMP || Date.now()
+      };
+      if(fbReady && reviewsRef){
+        reviewsRef.push(review).then(function(){
+          lastSubmitTime = Date.now();
+          nameInput.value = '';
+          textInput.value = '';
+          ratingSelect.value = '5';
+          submitBtn.disabled = false;
+          showToast();
+        }).catch(function(){
+          submitBtn.disabled = false;
+        });
+      } else {
+        review.ts = Date.now();
+        lastSubmitTime = Date.now();
+        var stored = JSON.parse(localStorage.getItem('nqf-reviews') || '[]');
+        stored.unshift(review);
+        localStorage.setItem('nqf-reviews', JSON.stringify(stored));
+        nameInput.value = '';
+        textInput.value = '';
+        ratingSelect.value = '5';
+        submitBtn.disabled = false;
+        showToast();
+        renderLocalFeed();
+      }
+    });
+  }
+
+  function renderLocalFeed(){
+    var stored = JSON.parse(localStorage.getItem('nqf-reviews') || '[]');
+    feed.innerHTML = '';
+    countEl.textContent = currentLang === 'en' ? 'Reviews: ' + stored.length : 'Отзывов: ' + stored.length;
+    if(stored.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'reviews-empty';
+      empty.textContent = currentLang === 'en' ? 'No reviews yet. Be the first!' : 'Пока нет отзывов. Будьте первым!';
+      feed.appendChild(empty);
+      return;
+    }
+    stored.forEach(function(r){ feed.appendChild(renderReview(r)); });
+  }
+
+  function startReviewsListener(){
+    if(!reviewsRef) return;
+    reviewsRef.orderByChild('ts').on('value', function(snap){
+      var items = [];
+      snap.forEach(function(child){ items.push(child.val()); });
+      items.reverse();
+      feed.innerHTML = '';
+      countEl.textContent = currentLang === 'en' ? 'Reviews: ' + items.length : 'Отзывов: ' + items.length;
+      if(items.length === 0){
+        var empty = document.createElement('div');
+        empty.className = 'reviews-empty';
+        empty.textContent = currentLang === 'en' ? 'No reviews yet. Be the first!' : 'Пока нет отзывов. Будьте первым!';
+        feed.appendChild(empty);
+        return;
+      }
+      items.forEach(function(r){ feed.appendChild(renderReview(r)); });
+    });
+  }
 })();
 </script>
 </body></html>
