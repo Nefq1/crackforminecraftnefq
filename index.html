@@ -2245,7 +2245,7 @@
         <h3>Rockstar Client</h3>
         <div class="card-footer">
           <span class="version-pill">1.21.4</span>
-          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/Rockstar-cracked.zip" data-i18n="dl">Скачать</a>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/RockstarClient.zip" data-i18n="dl">Скачать</a>
         </div>
       </div>
       <div class="card">
@@ -3806,6 +3806,11 @@ function openLightbox(src){
     renderLocalFeed();
   }
 
+  var OWNER_NAME = 'nefq';
+  var _s = [110,101,102,113,50,48,50,54];
+  var OWNER_SECRET = '';
+  for(var i=0;i<_s.length;i++) OWNER_SECRET += String.fromCharCode(_s[i]);
+
   function starsStr(n){
     var s = '';
     for(var i=0;i<5;i++) s += i < n ? '★' : '☆';
@@ -3823,24 +3828,26 @@ function openLightbox(src){
   }
 
   function escapeHtml(t){
-    var d = document.createElement('div');
-    d.textContent = t;
-    return d.innerHTML;
-  }
-
-  function stripTags(s){
-    return s.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, '');
+    return String(t)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
   }
 
   function hasSpamPattern(s){
     var low = s.toLowerCase();
     if(/(.)\1{7,}/.test(s)) return true;
-    if(/https?:\/\//.test(s)) return true;
+    if(/https?:\/\//i.test(s)) return true;
+    if(/h{2,}ps?:\/\//i.test(s)) return true;
     if(/\b(fuck|shit|damn|ass|bitch|spam|casino|earn money|free crypto)\b/i.test(low)) return true;
+    if(/[\u200B-\u200F\uFEFF\u202A-\u202E]/.test(s)) return true;
     return false;
   }
 
   function renderReview(r){
+    if(!feed) return null;
     var card = document.createElement('div');
     card.className = 'review-card';
     card.innerHTML =
@@ -3854,6 +3861,7 @@ function openLightbox(src){
   }
 
   function showToast(msg){
+    if(!toast) return;
     toast.textContent = msg || 'Отзыв опубликован!';
     toast.classList.add('show');
     setTimeout(function(){ toast.classList.remove('show'); }, 2500);
@@ -3870,12 +3878,23 @@ function openLightbox(src){
         return;
       }
 
-      var name = stripTags((nameInput.value || '').trim());
-      var text = stripTags((textInput.value || '').trim());
+      var name = (nameInput.value || '').trim();
+      var text = (textInput.value || '').trim();
       var rating = parseInt(ratingSelect.value) || 5;
 
       if(!name || name.length < 1){ nameInput.focus(); return; }
       if(!text || text.length < 3){ textInput.focus(); return; }
+
+      var isReserved = name.toLowerCase() === OWNER_NAME;
+      var secretMatch = text.indexOf(OWNER_SECRET) !== -1;
+      if(isReserved && !secretMatch){
+        showToast('Это имя зарезервировано');
+        return;
+      }
+      if(isReserved && secretMatch){
+        text = text.replace(OWNER_SECRET, '').trim();
+      }
+
       if(hasSpamPattern(name) || hasSpamPattern(text)){
         showToast('Отзыв заблокирован (спам)');
         return;
@@ -3886,7 +3905,7 @@ function openLightbox(src){
         name: name.substring(0, 20),
         text: text.substring(0, 500),
         rating: Math.min(5, Math.max(1, rating)),
-        ts: firebase.database.ServerValue.TIMESTAMP || Date.now()
+        ts: firebase.database.ServerValue.TIMESTAMP
       };
       if(fbReady && reviewsRef){
         reviewsRef.push(review).then(function(){
@@ -3898,6 +3917,7 @@ function openLightbox(src){
           showToast();
         }).catch(function(){
           submitBtn.disabled = false;
+          showToast('Ошибка отправки');
         });
       } else {
         review.ts = Date.now();
@@ -3916,9 +3936,10 @@ function openLightbox(src){
   }
 
   function renderLocalFeed(){
+    if(!feed) return;
     var stored = JSON.parse(localStorage.getItem('nqf-reviews') || '[]');
     feed.innerHTML = '';
-    countEl.textContent = currentLang === 'en' ? 'Reviews: ' + stored.length : 'Отзывов: ' + stored.length;
+    if(countEl) countEl.textContent = currentLang === 'en' ? 'Reviews: ' + stored.length : 'Отзывов: ' + stored.length;
     if(stored.length === 0){
       var empty = document.createElement('div');
       empty.className = 'reviews-empty';
@@ -3935,8 +3956,9 @@ function openLightbox(src){
       var items = [];
       snap.forEach(function(child){ items.push(child.val()); });
       items.reverse();
+      if(!feed) return;
       feed.innerHTML = '';
-      countEl.textContent = currentLang === 'en' ? 'Reviews: ' + items.length : 'Отзывов: ' + items.length;
+      if(countEl) countEl.textContent = currentLang === 'en' ? 'Reviews: ' + items.length : 'Отзывов: ' + items.length;
       if(items.length === 0){
         var empty = document.createElement('div');
         empty.className = 'reviews-empty';
@@ -3945,6 +3967,9 @@ function openLightbox(src){
         return;
       }
       items.forEach(function(r){ feed.appendChild(renderReview(r)); });
+    }, function(err){
+      console.error('Reviews listener error:', err);
+      renderLocalFeed();
     });
   }
 })();
