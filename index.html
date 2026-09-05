@@ -3,6 +3,7 @@
 <html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/jpeg" href="avatar.jpg">
 <title>MinecraftCracks</title>
 <style>
   :root{
@@ -282,6 +283,19 @@
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+  .site-avatar{
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 0 12px rgba(255,255,255,0.1);
+  }
+  .site-avatar:hover{
+    transform: scale(1.1);
+    box-shadow: 0 0 18px var(--accent-glow);
   }
   .lang-switch{
     background: var(--card);
@@ -2179,6 +2193,7 @@
     <a class="support-btn" id="supportBtn" href="https://t.me/Nefqqq" target="_blank" rel="noopener">support</a>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Цвет сайта" title="Цвет сайта">🎨</button>
     <button class="lang-switch" id="langSwitch" type="button" aria-label="Switch language">RU / EN</button>
+    <img class="site-avatar" src="avatar.jpg" alt="Nefq">
     <div class="theme-panel" id="themePanel" hidden>
       <span class="tp-label">Цвет акцента</span>
       <div class="theme-swatches" id="themeSwatches"></div>
@@ -2325,6 +2340,13 @@
           <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/wehside2408-1.21.11.zip" data-i18n="dl">Скачать</a>
         </div>
       </div>
+      <div class="card">
+        <h3>Essense</h3>
+        <div class="card-footer">
+          <span class="version-pill">1.21.4</span>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/Essense.zip" data-i18n="dl">Скачать</a>
+        </div>
+      </div>
     </div>
     <div class="cheats-note">
       <p class="by-line">
@@ -2368,6 +2390,13 @@
         <div class="card-footer">
           <span class="version-pill">1.16.5</span>
           <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/ReallyVisuals.1.16.5.rar" data-i18n="dl">Скачать</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>KimikoVisual</h3>
+        <div class="card-footer">
+          <span class="version-pill">1.21.11</span>
+          <a class="dl-btn" href="https://github.com/Nefq1/crackforminecraftnefq/releases/download/v1.0/KimikoVisual.rar" data-i18n="dl">Скачать</a>
         </div>
       </div>
     </div>
@@ -2414,6 +2443,15 @@
     <h2 class="section-title" data-i18n="tab_updates">Обновление</h2>
     <div class="updates-list">
       <div class="update-item update-item--today">
+        <div class="update-date">05.09.2026</div>
+        <div class="update-body">
+          <ul>
+            <li>Во вкладку «Читы» добавлен <b>Essense</b> (1.21.4).</li>
+            <li>Во вкладку «Визуалы» добавлен <b>KimikoVisual</b> (1.21.11).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="update-item">
         <div class="update-date">30.08.2026</div>
         <div class="update-body">
           <ul>
